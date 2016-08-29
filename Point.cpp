@@ -4,6 +4,7 @@ Point::Point()
 {
     Point(nullptr, nullptr);
     //bla
+    //blabla
 }
 
 Point::Point(const int xNum, const int yNum)
