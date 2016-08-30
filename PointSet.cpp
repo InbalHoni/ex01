@@ -3,24 +3,40 @@
 #include "PointSet.h"
 
 
-PointSet::PointSet()
+PointSet::PointSet():PointSet(DEFAULT_SET_SIZE)
 {
-    PointSet(DEFAULT_SET_SIZE);
+
 }
 
-PointSet:: PointSet(int capacity) // maybe add an option to add a list of points to this c'tor?
+PointSet::PointSet(int capacity) // maybe add an option to add a list of points to this c'tor?
 {
-    _points = new Point[capacity];
+    _points = new Point*[capacity];
+    std::fill_n(_points, capacity, nullptr);
     _arrSize = capacity;
     _curFilled = 0;
+}
+/**
+ * copy constructor
+ * @param Original
+ * @return
+ */
+PointSet::PointSet(const PointSet& original) : PointSet(original._arrSize)
+{
+
 }
 
 
 PointSet::~PointSet()
 {
+    for (int i=0; i < _curFilled; i++)
+    {
+        delete(_points[i]);
+        //_points[i] =nullptr;
+    }
     delete[] _points;
-    //_points = nullptr;
-    _arrSize = 0; // should this be here or is this extensive?
+    //_points = nullptr; // should add this or not?
+    _arrSize = 0;
+    _curFilled = 0;
 }
 
 
@@ -29,7 +45,7 @@ std::string PointSet::toString()
     std::stringstream pointsStr;
     for(int j=0; j < _curFilled; j++)
     {
-        pointsStr << _points[j].toString();
+        pointsStr << _points[j]->toString();
         if (j != _curFilled - 1)
         {
             pointsStr<< ",";
@@ -39,12 +55,22 @@ std::string PointSet::toString()
 }
 
 
-bool PointSet::add(const Point& newPoint)
+bool PointSet::add(Point* newPoint)
 {
-
+    if(!isPointInGroup(newPoint))
+    {
+        if (_arrSize - _curFilled == 0)
+        {
+            enlargeSet();
+        }
+        _curFilled++;
+        _points[_curFilled] = newPoint;
+        return true;
+    }
+    return false;
 }
 
-bool PointSet::remove(const Point& newPoint)
+bool PointSet::remove(const Point* newPoint)
 {
 
 }
@@ -89,7 +115,12 @@ PointSet PointSet::operator&(const PointSet& other) const
     return intersection;
 }
 
-bool PointSet::isPointInGroup(Point& curPnt) const
+PointSet PointSet::operator=(const PointSet& other)
+{
+
+}
+
+bool PointSet::isPointInGroup(const Point* curPnt) const
 {
     for(int j=0; j < _curFilled ; j++)
     {
@@ -101,7 +132,8 @@ bool PointSet::isPointInGroup(Point& curPnt) const
     return false;
 }
 
-PointSet PointSet::subtractOrIntersect(int flag, const PointSet& other) const {
+PointSet PointSet::subtractOrIntersect(int flag, const PointSet& other) const
+{
     PointSet returnedGroup = PointSet(_curFilled);
     for (int i=0; i < _curFilled; i++)
     {
@@ -121,6 +153,16 @@ PointSet PointSet::subtractOrIntersect(int flag, const PointSet& other) const {
         }
     }
     return returnedGroup;
-
 }
+
+void PointSet::enlargeSet()
+{
+    _arrSize = _arrSize*ENLARGMENT_FACTOR;
+    Point** enlargedArr = new Point*[_arrSize];
+    std::fill_n(_points, _arrSize, nullptr);
+    std::swap_ranges(_points[0], _points[_curFilled], enlargedArr[0]);
+    delete[] _points;
+    _points = enlargedArr;
+}
+
 

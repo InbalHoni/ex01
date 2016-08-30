@@ -13,8 +13,8 @@ Point::Point(const int xNum, const int yNum)
 
 Point::~Point()
 {
-    _xVal = NULL;
-    _yVal = NULL;
+    _xVal = 0;
+    _yVal = 0;
 }
 std::string Point::toString() const
 {

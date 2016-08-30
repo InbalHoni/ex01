@@ -3,7 +3,7 @@
 using namespace std;
 
 int main() {
- /*   cout << "Hello, World!" << endl;
+ /* cout << "Hello, World!" << endl;
     Point pnt1 = Point(1,2);
     Point pnt2 = Point(3,4);*/
     int arr1[5] = {1, 2, 3, 4, 5 };
