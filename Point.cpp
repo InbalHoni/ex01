@@ -1,9 +1,9 @@
 #include "Point.h"
 
+
 Point::Point()
 {
-    Point(nullptr, nullptr);
-    //bla
+
 }
 
 Point::Point(const int xNum, const int yNum)
@@ -13,11 +13,12 @@ Point::Point(const int xNum, const int yNum)
 
 Point::~Point()
 {
-    Point(); // Calling default c'tor in order to unassign the object's fields
+    _xVal = NULL;
+    _yVal = NULL;
 }
 std::string Point::toString() const
 {
-    return std::to_string(_xVal) + "," + std::to_string(_yVal);
+    return _pointStr;
 }
 
 
@@ -27,6 +28,11 @@ void Point::set(const int xNum, const int yNum)
     _yVal = yNum;
 }
 
+bool Point::operator==(Point& other) const
+{
+    // If string compare ==0, then strings are equal, hence points are equal.
+     return _pointStr.compare(other._pointStr) == EQ_POINTS;
+}
 
 /*
 

@@ -1,7 +1,6 @@
 #include <string>
 #include <sstream>
 #include "PointSet.h"
-#include "Point.h"
 
 
 PointSet::PointSet()
@@ -13,28 +12,25 @@ PointSet:: PointSet(int capacity) // maybe add an option to add a list of points
 {
     _points = new Point[capacity];
     _arrSize = capacity;
-    _curLocation = 0;
+    _curFilled = 0;
 }
 
 
 PointSet::~PointSet()
 {
-    for (int i=0; i < _arrSize; i++)
-    {
-        delete(_points[i]);
-    }
-
-    delete _points;
+    delete[] _points;
+    //_points = nullptr;
+    _arrSize = 0; // should this be here or is this extensive?
 }
 
 
 std::string PointSet::toString()
 {
     std::stringstream pointsStr;
-    for(int j=0; j < _curLocation; j++)
+    for(int j=0; j < _curFilled; j++)
     {
         pointsStr << _points[j].toString();
-        if (j != _curLocation - 1)
+        if (j != _curFilled - 1)
         {
             pointsStr<< ",";
         }
@@ -56,13 +52,75 @@ bool PointSet::remove(const Point& newPoint)
 
 int PointSet::size()
 {
-    return _curLocation;
+    return _curFilled;
 }
 
 
 
-bool operator!=(const PointSet& setA, const PointSet& setB);
-bool operator==(const PointSet& setA, const PointSet& setB);
-PointSet& operator-(const PointSet& setA, const PointSet& setB);
-PointSet& operator&(const PointSet& setA, const PointSet& setB);
+bool PointSet::operator!=(const PointSet& other) const
+{
+    return !(operator==(other));
+}
+
+
+bool PointSet::operator==(const PointSet& other) const {
+    // number of set members is different' obviously groups are not equal
+    if (this->_curFilled != other._curFilled) {
+        return false;
+    }
+    int match = 0;
+    for (int i = 0; i < _curFilled; i++) // do according to _currFilled, or according to arrSize?
+    {
+       if (other.isPointInGroup(_points[i]))
+       {
+           match +=1;
+       }
+    }
+    return match == _curFilled;
+}
+PointSet PointSet::operator-(const PointSet& other) const
+{
+    PointSet remainder = subtractOrIntersect(SUBTRECT_GROUP, other); // is there a way to allocate without new and then being able to return a reference and not a pointer?
+    return remainder;
+}
+PointSet PointSet::operator&(const PointSet& other) const
+{
+    PointSet intersection = subtractOrIntersect(INTERSECT_GROUP, other);
+    return intersection;
+}
+
+bool PointSet::isPointInGroup(Point& curPnt) const
+{
+    for(int j=0; j < _curFilled ; j++)
+    {
+        if (curPnt == _points[j])
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+PointSet PointSet::subtractOrIntersect(int flag, const PointSet& other) const {
+    PointSet returnedGroup = PointSet(_curFilled);
+    for (int i=0; i < _curFilled; i++)
+    {
+        if (!other.isPointInGroup(_points[i]))
+        {
+            if (flag == SUBTRECT_GROUP)
+            {
+                returnedGroup.add(_points[i]);
+            }
+        }
+        else if (other.isPointInGroup(_points[i]))
+        {
+            if (flag == INTERSECT_GROUP)
+            {
+                returnedGroup.add(_points[i]);
+            }
+        }
+    }
+    return returnedGroup;
+
+}
 
