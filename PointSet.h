@@ -31,7 +31,7 @@ public:
     bool operator==(const PointSet& other) const;
     PointSet operator-(const PointSet& other) const;
     PointSet operator&(const PointSet& other) const;
-    PointSet& operator=(const PointSet& other);
+    PointSet& operator=(PointSet other);
 
     PointSet* convexSearch();
     bool static angleComp(const Point* a,const Point* b);

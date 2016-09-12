@@ -1,20 +1,24 @@
 #include "Point.h"
 #include "PointSet.h"
-#include "iostream"
 #define MIN_CONV_SIZE 3
 
 
 int main()
 {
     PointSet setInQuestion = PointSet();
-    PointSet *retConvex;
-    Point *pntInsert;
-    while (!(std::cin.eof()))
+    PointSet* retConvex;
+    Point pntInsert;
+    int xNum, yNum;
+    char comma;
+    /*int i = 0;
+    while (i<5)*/
+    while (std::cin >> xNum >> comma >> yNum)
     {
-        int xNum, yNum;
+
         std::scanf("%d,%d\n", &xNum, &yNum);
-        pntInsert = new Point(xNum, yNum);
-        setInQuestion.add(*pntInsert);
+        pntInsert = Point(xNum, yNum);
+        setInQuestion.add(pntInsert);
+//        i++;
     }
 
     if (setInQuestion.size() < MIN_CONV_SIZE)
@@ -26,8 +30,7 @@ int main()
     }
 
     retConvex->sortForPrint();
-    std::cout<<"result\n";
-    retConvex->toString();
+    std::cout<<"result\n"<<retConvex->toString();
     delete retConvex;
     return 0;
 }

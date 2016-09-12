@@ -5,9 +5,9 @@
 
 Point PointSet::refPnt = Point();
 
-PointSet::PointSet():PointSet(DEFAULT_SET_SIZE)
+PointSet::PointSet(): PointSet(DEFAULT_SET_SIZE)
 {
-//kj
+
 }
 
 PointSet::PointSet(int capacity)
@@ -29,8 +29,10 @@ PointSet::PointSet(const PointSet& original) : PointSet(original._arrSize)
 
 PointSet::~PointSet()
 {
-    for (int i = 0; i < size(); i++)
+    for (int i = 0; i < _curFilled; i++)
     {
+        /*std::cout << "nums: " << _curFilled << "\n";
+        std::cout << "at place: " << i <<":" << _points[i]->toString() << "\n";*/
         delete(_points[i]);
     }
     delete[] _points;
@@ -43,7 +45,7 @@ PointSet::~PointSet()
 std::string PointSet::toString()
 {
     std::stringstream pointsStr;
-    for(int j = 0 ; j < size(); j++)
+    for(int j = 0 ; j < _curFilled; j++)
     {
         pointsStr << _points[j]->toString()<<"\n";
     }
@@ -59,7 +61,7 @@ bool PointSet::add(Point const &newPoint)
         {
             enlargeSet();
         }
-        *_points[_curFilled] = newPoint;
+        _points[_curFilled] = new Point(newPoint);
         _curFilled++;
         return true;
     }
@@ -72,7 +74,7 @@ bool PointSet::remove(Point const &pointToRemove)
     if ( location != NOT_IN_SET)
     {
         delete _points[location]; //TODO: should this be just a destructor?
-        if( size() < (int)(MINIMIZE_FACTOR * _arrSize))
+        if( _curFilled < (int)(MINIMIZE_FACTOR * _arrSize))
         {
             minimizeSet();
         }
@@ -104,7 +106,7 @@ bool PointSet::operator!=(const PointSet& other) const
 bool PointSet::operator==(const PointSet& other) const
 {
     // number of set members is different, obviously groups are not equal.
-    if (this->size() != other.size())
+    if (this->_curFilled != other._curFilled)
     {
         return false;
     }
@@ -129,18 +131,18 @@ PointSet PointSet::operator&(const PointSet& other) const
     return intersection;
 }
 
-PointSet& PointSet::operator=(const PointSet& other)
+PointSet& PointSet::operator=(PointSet other)
 {
     if (this == &other)
     {
         return *this;
     } else
     {
-        for(int i = 0; i < other.size(); i++)
-        {
-            delete _points[i];
-            *_points[i] = *other._points[i];
-        }
+        using std::swap;
+
+        swap(this->_curFilled, other._curFilled);
+        swap(this->_arrSize, other._arrSize);
+        swap(this->_points, other._points);
     }
     return *this;
 }
@@ -160,8 +162,8 @@ int PointSet::isPointInSet(const Point& curPnt) const
 
 PointSet PointSet::subtractOrIntersect(int flag, const PointSet& other) const
 {
-    PointSet returnedGroup = PointSet(size());
-    for (int i = 0; i <size(); i++)
+    PointSet returnedGroup = PointSet(_curFilled);
+    for (int i = 0; i <_curFilled; i++)
     {
         if (other.isPointInSet(*_points[i]) == NOT_IN_SET)
         {
@@ -205,13 +207,13 @@ void PointSet::fillArray(Point** arrToFill)
 {
     for (int i = 0;  i <_arrSize;i++)
     {
-        _points[i] = nullptr;
+        arrToFill[i] = nullptr;
     }
 }
 
 PointSet* PointSet::convexSearch()
 {
-    int numOfMembers = size();
+    int numOfMembers = _curFilled;
     Point** retPnts = new Point*[numOfMembers + 1];
     std::copy(_points, _points+numOfMembers, retPnts+1); // leaving the first place empty.
 
@@ -225,15 +227,15 @@ PointSet* PointSet::convexSearch()
             std::swap(retPnts[i], retPnts[1]);
         }
     }
-
     updateRef(*retPnts[1]);
+//    refPnt = *retPnts[1]; //TODO
 
     //sorting points in increasing angle in relation to our minimum y point
     std::sort(retPnts+1, retPnts+numOfMembers+1, angleComp);
     retPnts[0] = retPnts[numOfMembers];
 
     int M = 1;
-    for (int i = 2; i < numOfMembers; i++)
+    for (int i = 2; i <= numOfMembers; i++)
     {
         while (ccw(*retPnts[M-1], *retPnts[M], *retPnts[i]) <= 0)
         {
@@ -251,19 +253,14 @@ PointSet* PointSet::convexSearch()
             }
         }
         M++;
+        std::cout<<"adding point:"<<retPnts[i]->toString()<<"\n";
         std::swap(retPnts[i], retPnts[M]);
     }
     // creating the convex hull to be returned and putting the relevant points in it.
     PointSet* retSet = new PointSet(M);
     delete[]  retSet->_points;
     retSet->_points = retPnts;
-    /*for (int j = 0; j < M; j++)
-    {
-        retSet->add(*retPnts[j]);
-    }
-
-     //and some stuff to delete the points from the array we created, and delete the array itself.
-    */
+    retSet->_curFilled = M;
     return retSet;
 }
 
@@ -305,7 +302,7 @@ bool PointSet::forPrintComp(const Point* pnt1, const Point* pnt2)
 
 void PointSet::sortForPrint()
 {
-    std::sort(_points, _points +size(), forPrintComp);
+    std::sort(_points, _points + _curFilled, forPrintComp);
 }
 
 void PointSet::updateRef(Point &ref)

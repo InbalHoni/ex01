@@ -1,15 +1,13 @@
 #include "Point.h"
 
 
-Point::Point()
+Point::Point() : _xVal(0), _yVal(0), _pointStr("")
 {
-    defaultPoint();
 }
 
-Point::Point(int xNum, int yNum)
+Point::Point(int xNum, int yNum) : _xVal(xNum), _yVal(yNum),
+             _pointStr(std::to_string(_xVal) + "," + std::to_string(_yVal))
 {
-    set(xNum, yNum);
-    _pointStr =  std::to_string(_xVal) + "," + std::to_string(_yVal);
 }
 
 Point::Point(const Point& other) : Point(other._xVal, other._yVal)
@@ -18,9 +16,9 @@ Point::Point(const Point& other) : Point(other._xVal, other._yVal)
 }
 
 
-Point::~Point() // TODO:: fix this to calling the c'tor with 0,0 or just the current constellation, and fixing the string to ""
+Point::~Point()
 {
-    defaultPoint();
+
 }
 std::string Point::toString() const
 {
@@ -38,12 +36,6 @@ bool Point::operator==(Point& other) const
 {
     // If string compare ==0, then strings are equal, hence points are equal.
      return _pointStr.compare(other._pointStr) == EQ_POINTS;
-}
-
-void Point::defaultPoint()
-{
-    set(0,0);
-    _pointStr = "";
 }
 
 
