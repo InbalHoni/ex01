@@ -3,18 +3,24 @@
 
 Point::Point()
 {
-
+    defaultPoint();
 }
 
-Point::Point(const int xNum, const int yNum)
+Point::Point(int xNum, int yNum)
 {
     set(xNum, yNum);
+    _pointStr =  std::to_string(_xVal) + "," + std::to_string(_yVal);
 }
 
-Point::~Point()
+Point::Point(const Point& other) : Point(other._xVal, other._yVal)
 {
-    _xVal = 0;
-    _yVal = 0;
+
+}
+
+
+Point::~Point() // TODO:: fix this to calling the c'tor with 0,0 or just the current constellation, and fixing the string to ""
+{
+    defaultPoint();
 }
 std::string Point::toString() const
 {
@@ -34,10 +40,21 @@ bool Point::operator==(Point& other) const
      return _pointStr.compare(other._pointStr) == EQ_POINTS;
 }
 
-/*
-
-void Point::set(Point& curPnt, const int xNum, const int yNum)
+void Point::defaultPoint()
 {
-    curPnt._xVal = xNum;
-    curPnt._yVal = yNum;
-}*/
+    set(0,0);
+    _pointStr = "";
+}
+
+
+int Point::getXVal() const
+{
+    return _xVal;
+}
+int Point::getYVal() const
+{
+    return _yVal;
+}
+
+
+
