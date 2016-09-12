@@ -7,7 +7,7 @@ Point PointSet::refPnt = Point();
 
 PointSet::PointSet():PointSet(DEFAULT_SET_SIZE)
 {
-
+//kj
 }
 
 PointSet::PointSet(int capacity)
